@@ -17,5 +17,13 @@ const userschema = new mongoose.Schema({
     mobile:{
         type:String,
         required:true,
+    },
+    role:{
+        type:string,
+        enum:["user","owner","deliveryBoy"],
+        required:true,
+    },
 
 }, {timestamps:true})
+const User=mongoose.model("User",userschema)
+export default user
