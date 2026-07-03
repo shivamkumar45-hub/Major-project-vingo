@@ -45,3 +45,37 @@ import {genToken} from "../utils/genToken.js
 
 
 }
+
+ export const signIn=async(req,res)=>{
+    try{
+        const {email,password}=req.body
+        const user =await User.findOne({email})
+        if(!user){
+            return res.status(400).json({message:"User does not exist "})
+        }
+        const isMatch=await bcrypt.compare(password,user.password)
+        if(!isMatch){
+            return res.status(400).json({message:"Invalid credentials"})
+        }
+
+        const token=await genToken(user._id)
+        res.cookie("token",token,{
+            secure:false,
+            sameSite:strict,
+            maxAge:7*24*60*60*1000,
+            httpOnly:true,
+        })
+        return res.status(201).json(user)
+
+    }catch(error){
+        return res.status(500).json({message:"Internal server error"})
+
+    }
+
+}
+export const signOut=async(req,res)=>{
+    try{
+        res.clearCookie("token")
+        return res.status(200).json({message:"User signed out successfully"})
+    }catch(error){
+        return res.status(500).json({message:"Internal server error"})
